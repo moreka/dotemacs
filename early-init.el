@@ -25,7 +25,8 @@
       ring-bell-function 'ignore
       window-resize-pixelwise t
       load-prefer-newer t
-      backup-by-copying t)
+      backup-by-copying t
+      comp-async-report-warnings-errors nil)
 
 ;; Ignore X resources; its settings would be redundant with the other settings
 ;; in this file and can conflict with later config (particularly where the

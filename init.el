@@ -1,21 +1,19 @@
 ;; -*- lexical-binding: t; -*-
 
-;;; Put Emacs auto-save and backup files to /tmp
+(setq custom-file "~/.config/emacs/custom.el")
 (defconst emacs-tmp-dir (expand-file-name (format "emacs%d" (user-uid)) temporary-file-directory))
 (setq
    delete-old-versions t
    kept-new-versions 6
    kept-old-versions 2
    version-control t
+   tab-width 2
+   indent-tabs-mode nil
+   compilation-scroll-output t
+   create-lockfiles nil
    auto-save-list-file-prefix emacs-tmp-dir
    auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t))
    backup-directory-alist `((".*" . ,emacs-tmp-dir)))
-
-(setq tab-width 2
-      indent-tabs-mode nil
-      compilation-scroll-output t)
-
-(setq create-lockfiles nil)
 
 (electric-pair-mode t)
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -30,8 +28,14 @@
 (global-set-key (kbd "M-c") 'kill-ring-save)
 (global-set-key (kbd "M-v") 'clipboard-yank)
 
+(setq display-line-numbers-type 'relative)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 
 (setq use-package-verbose nil)
@@ -42,23 +46,23 @@
   (global-undo-tree-mode 1)
   (setq undo-tree-auto-save-history nil))
 
-(use-package magit :ensure t)
-
 (use-package evil
   :ensure t
   :init
-  (setq evil-want-keybinding nil
-	evil-want-C-u-scroll t)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-keybinding nil)
   :config
-  (evil-mode t)
   (setq evil-search-module 'evil-search)
-  (evil-set-undo-system 'undo-tree))
+  (evil-set-undo-system 'undo-tree)
+  (evil-mode 1))
 
 (use-package evil-collection
+  :after evil
   :ensure t
   :config
-  (evil-collection-init
-   (list 'magit 'dired)))
+  (evil-collection-init))
+
+(use-package magit :ensure t)
 
 (use-package yasnippet
   :ensure t
@@ -118,18 +122,17 @@
 	  AMSTeX))
   (setq reftex-ref-style-default-list '("Cleveref" "Default")))
 
-
-
-(use-package smex :ensure t)
-(use-package ido-completing-read+
+(use-package vertico
   :ensure t
   :config
-  (ido-mode 1)
-  (ido-everywhere 1)
-  (ido-ubiquitous-mode 1))
+  (vertico-mode))
 
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+(use-package marginalia
+  :ensure t
+  :config
+  (marginalia-mode))
+
+(use-package orderless :ensure t)
 
 (use-package company
   :ensure t
@@ -144,9 +147,15 @@
 
 (setq org-directory "~/Research/org")
 (setq org-default-notes-file (concat org-directory "/notes.org"))
+(setq org-agenda-files (list "~/Research/org/agenda.org"))
 
-;; (use-package zenburn-theme :ensure t)
-;; (load-theme 'zenburn t)
+(require 'mu4e)
+(load "~/.config/emacs/mail.el")
 
-(setq custom-file "~/.config/emacs/custom.el")
+(use-package modus-themes :ensure t)
+(load-theme 'modus-operandi-tinted t)
+(custom-set-faces
+ '(mode-line ((t :box (:style released-button)))))
+
+(use-package org :ensure t)
 (load custom-file t)
